@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorting Visualizer</title>
+<style>
+  #container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 300px;
+  }
+  .bar {
+    width: 20px;
+    margin: 0 2px;
+    background-color: blue;
+  }
+</style>
+</head>
+<body>
+<div id="container"></div>
+<button onclick="randomize()">Randomize Array</button>
+<button onclick="applySort('insertion')">Insertion Sort</button>
+<button onclick="applySort('selection')">Selection Sort</button>
+<button onclick="applySort('bubble')">Bubble Sort</button>
+<button onclick="applySort('quick')">Quick Sort</button>
+<button onclick="applySort('merge')">Merge Sort</button>
+<button onclick="applySort('shell')">Shell Sort</button>
+<button onclick="changeSize()">Change Size</button>
+<script>
+  let bars = [];
+  let barCount = 20;
+  let container = document.getElementById('container');
+
+  function randomize() {
+    bars = Array.from({ length: barCount }, () => Math.floor(Math.random() * 100) + 1);
+    renderBars();
+  }
+
+  function renderBars() {
+    container.innerHTML = '';
+    bars.forEach(value => {
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.style.height = `${value}px`;
+      container.appendChild(bar);
+    });
+  }
+
+  function applySort(algorithm) {
+  switch (algorithm) {
+    case 'insertion':
+      insertionSort();
+      break;
+    case 'selection':
+      selectionSort();
+      break;
+    case 'bubble':
+      bubbleSort();
+      break;
+    case 'quick':
+      quickSort(0, bars.length - 1);
+      break;
+    case 'merge':
+      mergeSort(0, bars.length - 1);
+      break;
+    case 'shell':
+      shellSort();
+      break;
+  }
+  renderBars(); // After sorting, update the visual representation
+}
+
+function insertionSort() {
+  for (let i = 1; i < bars.length; i++) {
+    let current = bars[i];
+    let j = i - 1;
+    while (j >= 0 && bars[j] > current) {
+      bars[j + 1] = bars[j];
+      j--;
+    }
+    bars[j + 1] = current;
+  }
+}
+
+function selectionSort() {
+  for (let i = 0; i < bars.length - 1; i++) {
+    let minIndex = i;
+    for (let j = i + 1; j < bars.length; j++) {
+      if (bars[j] < bars[minIndex]) {
+        minIndex = j;
+      }
+    }
+    if (minIndex !== i) {
+      [bars[i], bars[minIndex]] = [bars[minIndex], bars[i]];
+    }
+  }
+}
+
+function bubbleSort() {
+  let swapped;
+  do {
+    swapped = false;
+    for (let i = 0; i < bars.length - 1; i++) {
+      if (bars[i] > bars[i + 1]) {
+        [bars[i], bars[i + 1]] = [bars[i + 1], bars[i]];
+        swapped = true;
+      }
+    }
+  } while (swapped);
+}
+
+function quickSort(low, high) {
+  if (low < high) {
+    const pivotIndex = partition(low, high);
+    quickSort(low, pivotIndex - 1);
+    quickSort(pivotIndex + 1, high);
+  }
+}
+
+function partition(low, high) {
+  const pivot = bars[high];
+  let i = low - 1;
+  for (let j = low; j < high; j++) {
+    if (bars[j] < pivot) {
+      i++;
+      [bars[i], bars[j]] = [bars[j], bars[i]];
+    }
+  }
+  [bars[i + 1], bars[high]] = [bars[high], bars[i + 1]];
+  return i + 1;
+}
+
+function mergeSort(left, right) {
+  if (left < right) {
+    const mid = Math.floor((left + right) / 2);
+    mergeSort(left, mid);
+    mergeSort(mid + 1, right);
+    merge(left, mid, right);
+  }
+}
+
+function merge(left, mid, right) {
+  const leftArray = bars.slice(left, mid + 1);
+  const rightArray = bars.slice(mid + 1, right + 1);
+  let i = 0,
+    j = 0,
+    k = left;
+
+  while (i < leftArray.length && j < rightArray.length) {
+    if (leftArray[i] < rightArray[j]) {
+      bars[k] = leftArray[i];
+      i++;
+    } else {
+      bars[k] = rightArray[j];
+      j++;
+    }
+    k++;
+  }
+
+  while (i < leftArray.length) {
+    bars[k] = leftArray[i];
+    i++;
+    k++;
+  }
+
+  while (j < rightArray.length) {
+    bars[k] = rightArray[j];
+    j++;
+    k++;
+  }
+}
+
+function shellSort() {
+  const n = bars.length;
+  for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+    for (let i = gap; i < n; i++) {
+      const temp = bars[i];
+      let j;
+      for (j = i; j >= gap && bars[j - gap] > temp; j -= gap) {
+        bars[j] = bars[j - gap];
+      }
+      bars[j] = temp;
+    }
+  }
+}
+
+    renderBars(); // After sorting, update the visual representation
+  
+
+  function changeSize() {
+    bars = bars.map(value => value - 10);
+    renderBars();
+  }
+
+  randomize(); // Initial randomization
+</script>
+</body>
+</html>
